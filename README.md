@@ -24,15 +24,19 @@ This system automates the manual polar alignment adjustments on the Star Adventu
 | Component | Quantity | Specification | Approx. Cost (USD) |
 |-----------|----------|---------------|-------------------|
 | Arduino Nano | 1 | ATmega328P, USB | $5-10 |
-| TMC2208 Stepper Driver | 2 | V3.0, 256 microsteps | $5-8 each |
-| NEMA 17 Stepper Motor | 2 | 1.8°, 12V, 0.4A+ | $10-15 each |
-| 12V Power Supply | 1 | 2A minimum | $8-12 |
+| TMC2208 Stepper Driver | 3 | V3.0, 256 microsteps | $5-8 each |
+| **NEMA 11 Stepper Motor** | **3** | **28mm, 1.8°, 12V, 0.33-0.67A** | **$8-12 each** |
+| 12V Power Supply | 1 | 3A minimum | $10-15 |
 | USB Cable | 1 | USB-A to Mini/Micro | $3-5 |
-| Jumper Wires | 20+ | Dupont connectors | $5 |
+| Jumper Wires | 30+ | Dupont connectors | $5 |
 | Breadboard (optional) | 1 | For prototyping | $5 |
-| Heatsinks | 2 | For TMC2208 drivers | $2 |
+| Heatsinks | 3 | For TMC2208 drivers | $3 |
 
-**Total Cost**: ~$75-100 USD
+**Total Cost**: ~$85-110 USD
+
+**Motor Note**: NEMA 11 (28mm × 28mm) recommended for compact Star Adventurer GTi.  
+NEMA 17 (42mm × 42mm) too large and will interfere with telescope mounting.  
+Alternative: NEMA 14 (35mm) or remote-mount NEMA 17 away from telescope.
 
 ### Mechanical Components (for final build)
 
@@ -80,8 +84,9 @@ TMC2208 Stepper Driver Pinout:
 │  A1  A2      │  ← To Motor Coil A
 └──────────────┘
 
-NEMA 17 Motor Connections:
+NEMA 11/17 Motor Connections:
 - Identify coils with multimeter (resistance test)
+- Same connection pattern for both motor sizes
 - Typical wire colors:
   * Coil A: Red/Blue (or Red/Yellow)
   * Coil B: Green/Black (or Green/White)

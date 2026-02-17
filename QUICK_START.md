@@ -7,7 +7,8 @@ Get your automated polar alignment system running in 30 minutes!
 ### Required (Minimum for Testing)
 - [ ] Arduino Nano (or Uno)
 - [ ] 2x TMC2208 stepper driver boards
-- [ ] 2x NEMA 17 stepper motors
+- [ ] 3x **NEMA 11** stepper motors (28mm × 28mm, 0.33-0.67A) ← Compact size!
+  - Alternative: NEMA 14 or remote-mounted NEMA 17
 - [ ] 12V 2A power supply (with barrel jack or wires)
 - [ ] USB cable (for Arduino)
 - [ ] ~20 jumper wires (male-to-female)
@@ -74,16 +75,19 @@ Note: Use multimeter to identify motor coils:
 
 **CRITICAL: Do this BEFORE first power-on!**
 
-For 0.4A motors (typical NEMA 17):
+**For NEMA 11 motors (0.67A typical, recommended):**
 ```
 1. Connect 12V power (Arduino NOT connected yet)
 2. Measure voltage between Vref pin and GND
-3. Adjust potentiometer until Vref = 0.2V
+3. Adjust potentiometer until Vref = 0.33V
    Formula: Vref = Motor_Current × 0.5
-           Vref = 0.4A × 0.5 = 0.2V
+           Vref = 0.67A × 0.5 = 0.335V → Set to 0.33V
 4. Turn SLOWLY - very sensitive!
-5. Repeat for both drivers
+5. Repeat for all 3 drivers
 ```
+
+**For NEMA 14/17 motors (0.4A typical):**
+- Set Vref = 0.2V (0.4A × 0.5)
 
 ### Part 2: Software Setup (10 min)
 

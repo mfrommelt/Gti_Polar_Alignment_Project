@@ -47,7 +47,7 @@ polar_align_controller/
 2. **Order electronics**:
    - Arduino Nano
    - 2x TMC2208 drivers
-   - 2x NEMA 17 motors
+   - 3x NEMA 11 motors (28mm, compact for Star Adventurer GTi)
    - 12V power supply
    - Wiring and accessories
 

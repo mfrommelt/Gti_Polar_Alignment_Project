@@ -5,6 +5,30 @@ Star Adventurer GTi - Polar Alignment Control Software
 This software provides control over the automated polar alignment motors
 for the Sky-Watcher Star Adventurer GTi mount.
 
+SYSTEM ARCHITECTURE:
+-------------------
+The mount uses 3 stepper motors controlled by Arduino firmware:
+
+1. ALT Motor (Altitude):
+   - Controls altitude adjustment via worm gear knob
+   - Single motor, independent control
+   
+2. AZ Motors (Azimuth - DIFFERENTIAL):
+   - West Motor: Controls west adjustment screw
+   - East Motor: Controls east adjustment screw
+   - Both motors move SIMULTANEOUSLY in OPPOSITE directions
+   - This creates a push-pull differential system
+   
+AZ DIFFERENTIAL CONTROL:
+-----------------------
+When you command "move azimuth EAST":
+  - Arduino automatically: Tightens west screw + Loosens east screw
+When you command "move azimuth WEST":
+  - Arduino automatically: Loosens west screw + Tightens east screw
+
+This Python software doesn't need to know about the dual motors - it just
+sends "move AZ" commands and the Arduino handles the differential control.
+
 Features:
 - Serial communication with Arduino controller
 - Manual motor control
@@ -17,7 +41,7 @@ Requirements:
 - pyserial
 
 Author: Polar Align Automation Project
-Version: 1.0
+Version: 2.0 - Differential AZ Control
 """
 
 import serial
@@ -200,17 +224,26 @@ class PolarAlignController:
     
     def move_azimuth(self, steps: int) -> bool:
         """
-        Move azimuth motor
+        Move azimuth in differential mode (dual opposing motors)
+        
+        Positive steps = Move EAST (west screw tightens, east screw loosens)
+        Negative steps = Move WEST (west screw loosens, east screw tightens)
+        
+        Note: The Arduino firmware handles the differential control automatically.
+        This function just sends the desired direction and magnitude.
         
         Args:
-            steps: Number of steps (positive = CW, negative = CCW)
+            steps: Number of steps (positive = EAST, negative = WEST)
             
         Returns:
             True if successful
         """
         response = self.send_command(f"Z{steps}")
         if response and 'OK:AZ_MOVE' in response:
-            print(f"Azimuth moved {steps} steps")
+            direction = "EAST" if steps > 0 else "WEST"
+            print(f"Azimuth moved {abs(steps)} steps {direction}")
+            print(f"  (West screw: {'tightening' if steps > 0 else 'loosening'}, "
+                  f"East screw: {'loosening' if steps > 0 else 'tightening'})")
             self.update_position()
             return True
         return False
@@ -321,7 +354,8 @@ class PolarAlignController:
             'connected': self.connected,
             'alt_position': self.alt_position,
             'az_position': self.az_position,
-            'speed': self.current_speed
+            'speed': self.current_speed,
+            'mode': 'Differential AZ (3 motors: ALT + West + East)'
         }
         
         if response:
@@ -332,6 +366,13 @@ class PolarAlignController:
                 line = self.serial.readline().decode('utf-8').strip()
                 print(line)
         
+        print(f"\nPython Controller Status:")
+        print(f"  Mode: {status['mode']}")
+        print(f"  Connected: {status['connected']}")
+        print(f"  ALT Position: {status['alt_position']}")
+        print(f"  AZ Position: {status['az_position']} (+ = East, - = West)")
+        print(f"  Speed: {status['speed']} steps/sec")
+        
         return status
 
 
@@ -339,13 +380,16 @@ def print_menu():
     """Print the main menu"""
     print("\n" + "="*60)
     print("STAR ADVENTURER GTi - POLAR ALIGNMENT CONTROLLER")
+    print("v2.0 - Differential AZ Control")
     print("="*60)
     print("\nALTITUDE CONTROLS:")
     print("  Q/W/E/R - Move UP (Fine/Small/Medium/Large)")
     print("  A/S/D/F - Move DOWN (Fine/Small/Medium/Large)")
-    print("\nAZIMUTH CONTROLS:")
-    print("  T/Y/U/I - Move CCW (Fine/Small/Medium/Large)")
-    print("  G/H/J/K - Move CW (Fine/Small/Medium/Large)")
+    print("\nAZIMUTH CONTROLS (Differential - 2 Motors):")
+    print("  T/Y/U/I - Move WEST (Fine/Small/Medium/Large)")
+    print("           (loosens west screw, tightens east screw)")
+    print("  G/H/J/K - Move EAST (Fine/Small/Medium/Large)")
+    print("           (tightens west screw, loosens east screw)")
     print("\nOTHER COMMANDS:")
     print("  P - Get current position")
     print("  0 - Reset position to 0,0")
@@ -356,14 +400,18 @@ def print_menu():
     print("  ? - Show status")
     print("  M - Show this menu")
     print("  C - Clear position display")
-    print("  Q - Quit")
+    print("  QUIT - Exit program")
+    print("="*60)
+    print("\nNOTE: AZ uses differential control - both motors move")
+    print("      simultaneously in opposite directions.")
     print("="*60)
 
 
 def main():
     """Main control loop"""
     print("Star Adventurer GTi Polar Alignment Controller")
-    print("Version 1.0\n")
+    print("Version 2.0 - Differential AZ Control")
+    print("3 Motors: ALT + AZ West + AZ East\n")
     
     # Create controller
     controller = PolarAlignController()

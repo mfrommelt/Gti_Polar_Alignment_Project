@@ -1,20 +1,23 @@
 /*
  * Star Adventurer GTi - Automated Polar Alignment Controller
+ * DIFFERENTIAL AZIMUTH VERSION
  * 
- * Controls two stepper motors for ALT and AZ adjustments
- * Communicates via USB Serial with host computer
+ * Controls two stepper motors:
+ * - ALT motor: Single knob control (independent)
+ * - AZ motors: Dual opposing screws (synchronized differential)
+ * 
+ * AZ Control Logic:
+ * - Moving WEST: Loosen west screw, tighten east screw
+ * - Moving EAST: Tighten west screw, loosen east screw
+ * - Both motors move simultaneously in opposite directions
  * 
  * Hardware:
  * - Arduino Nano/Uno
- * - 2x TMC2208/TMC2209 stepper drivers
- * - 2x NEMA 17 stepper motors
- * 
- * Protocol:
- * - Commands are single characters followed by optional parameters
- * - Format: <command>[value]\n
+ * - 3x TMC2208/TMC2209 stepper drivers (1 for ALT, 2 for AZ)
+ * - 3x NEMA 17 stepper motors
  * 
  * Author: Polar Align Automation Project
- * Version: 1.0
+ * Version: 2.0 - Differential AZ Control
  */
 
 // Pin definitions for Motor 1 (ALT - Altitude)
@@ -22,10 +25,15 @@
 #define ALT_DIR_PIN 3
 #define ALT_ENABLE_PIN 4
 
-// Pin definitions for Motor 2 (AZ - Azimuth)
-#define AZ_STEP_PIN 5
-#define AZ_DIR_PIN 6
-#define AZ_ENABLE_PIN 7
+// Pin definitions for Motor 2 (AZ WEST screw)
+#define AZ_WEST_STEP_PIN 5
+#define AZ_WEST_DIR_PIN 6
+#define AZ_WEST_ENABLE_PIN 7
+
+// Pin definitions for Motor 3 (AZ EAST screw)
+#define AZ_EAST_STEP_PIN 8
+#define AZ_EAST_DIR_PIN 9
+#define AZ_EAST_ENABLE_PIN 10
 
 // Motor parameters
 #define STEPS_PER_REV 200        // Standard NEMA 17
@@ -36,15 +44,14 @@
 
 // Position tracking
 long altPosition = 0;
-long azPosition = 0;
+long azPosition = 0;  // Positive = East, Negative = West
 
 // Speed settings (steps per second)
 int altSpeed = 800;
 int azSpeed = 800;
 
 // Direction flags
-bool altDirection = true;  // true = CW, false = CCW
-bool azDirection = true;
+bool altDirection = true;
 
 // Movement state
 bool isMoving = false;
@@ -67,24 +74,31 @@ void setup() {
   pinMode(ALT_DIR_PIN, OUTPUT);
   pinMode(ALT_ENABLE_PIN, OUTPUT);
   
-  pinMode(AZ_STEP_PIN, OUTPUT);
-  pinMode(AZ_DIR_PIN, OUTPUT);
-  pinMode(AZ_ENABLE_PIN, OUTPUT);
+  pinMode(AZ_WEST_STEP_PIN, OUTPUT);
+  pinMode(AZ_WEST_DIR_PIN, OUTPUT);
+  pinMode(AZ_WEST_ENABLE_PIN, OUTPUT);
+  
+  pinMode(AZ_EAST_STEP_PIN, OUTPUT);
+  pinMode(AZ_EAST_DIR_PIN, OUTPUT);
+  pinMode(AZ_EAST_ENABLE_PIN, OUTPUT);
   
   // Enable motors (LOW = enabled for TMC2208)
   digitalWrite(ALT_ENABLE_PIN, LOW);
-  digitalWrite(AZ_ENABLE_PIN, LOW);
+  digitalWrite(AZ_WEST_ENABLE_PIN, LOW);
+  digitalWrite(AZ_EAST_ENABLE_PIN, LOW);
   
   // Set initial directions
   digitalWrite(ALT_DIR_PIN, HIGH);
-  digitalWrite(AZ_DIR_PIN, HIGH);
+  digitalWrite(AZ_WEST_DIR_PIN, HIGH);
+  digitalWrite(AZ_EAST_DIR_PIN, HIGH);
   
   // Reserve space for input string
   inputString.reserve(200);
   
   // Send ready message
   Serial.println("READY");
-  Serial.println("Star Adventurer GTi Polar Alignment Controller v1.0");
+  Serial.println("Star Adventurer GTi Polar Alignment Controller v2.0");
+  Serial.println("Differential AZ Control Enabled");
   printHelp();
 }
 
@@ -164,11 +178,11 @@ void processCommand(String cmd) {
       }
       break;
       
-    case 'Z':  // Move AZ motor
+    case 'Z':  // Move AZ motors (differential)
     case 'z':
       if (param.length() > 0) {
         long steps = param.toInt();
-        moveAzimuth(steps);
+        moveAzimuthDifferential(steps);
         Serial.print("OK:AZ_MOVE:");
         Serial.println(steps);
       } else {
@@ -207,6 +221,11 @@ void processCommand(String cmd) {
       }
       break;
       
+    case 'B':  // Balance AZ screws (find center tension)
+    case 'b':
+      balanceAzimuth();
+      break;
+      
     case '?':  // Status query
       printStatus();
       break;
@@ -242,26 +261,55 @@ void moveAltitude(long steps) {
 }
 
 /*
- * Move azimuth motor by specified steps
+ * Move azimuth motors in differential mode
+ * 
+ * Positive steps = Move EAST (tighten west screw, loosen east screw)
+ * Negative steps = Move WEST (loosen west screw, tighten east screw)
  */
-void moveAzimuth(long steps) {
+void moveAzimuthDifferential(long steps) {
   if (steps == 0) return;
   
-  // Set direction
-  digitalWrite(AZ_DIR_PIN, steps > 0 ? HIGH : LOW);
-  azDirection = steps > 0;
-  
-  // Execute steps
   long absSteps = abs(steps);
+  
+  if (steps > 0) {
+    // Move EAST: West screw tightens (forward), East screw loosens (backward)
+    digitalWrite(AZ_WEST_DIR_PIN, HIGH);   // Tighten
+    digitalWrite(AZ_EAST_DIR_PIN, LOW);    // Loosen
+  } else {
+    // Move WEST: West screw loosens (backward), East screw tightens (forward)
+    digitalWrite(AZ_WEST_DIR_PIN, LOW);    // Loosen
+    digitalWrite(AZ_EAST_DIR_PIN, HIGH);   // Tighten
+  }
+  
+  // Execute synchronized steps on both motors
   for (long i = 0; i < absSteps; i++) {
-    digitalWrite(AZ_STEP_PIN, HIGH);
+    // Step both motors simultaneously
+    digitalWrite(AZ_WEST_STEP_PIN, HIGH);
+    digitalWrite(AZ_EAST_STEP_PIN, HIGH);
     delayMicroseconds(MIN_PULSE_WIDTH);
-    digitalWrite(AZ_STEP_PIN, LOW);
+    
+    digitalWrite(AZ_WEST_STEP_PIN, LOW);
+    digitalWrite(AZ_EAST_STEP_PIN, LOW);
     delayMicroseconds(stepInterval);
     
-    // Update position
-    azPosition += azDirection ? 1 : -1;
+    // Update position (positive = east, negative = west)
+    azPosition += (steps > 0) ? 1 : -1;
   }
+}
+
+/*
+ * Balance azimuth screws to find neutral center position
+ * This helps establish equal tension on both screws
+ */
+void balanceAzimuth() {
+  Serial.println("BALANCE:START");
+  Serial.println("BALANCE:This is a manual procedure");
+  Serial.println("BALANCE:1. Manually adjust screws to center position");
+  Serial.println("BALANCE:2. Use small test moves to verify balance");
+  Serial.println("BALANCE:3. Reset position when centered");
+  Serial.println("BALANCE:READY");
+  
+  // User should now manually center the mount and then send 'R' to reset position
 }
 
 /*
@@ -278,7 +326,8 @@ void stopMotors() {
 void enableMotors(bool enable) {
   // TMC2208: LOW = enabled, HIGH = disabled
   digitalWrite(ALT_ENABLE_PIN, enable ? LOW : HIGH);
-  digitalWrite(AZ_ENABLE_PIN, enable ? LOW : HIGH);
+  digitalWrite(AZ_WEST_ENABLE_PIN, enable ? LOW : HIGH);
+  digitalWrite(AZ_EAST_ENABLE_PIN, enable ? LOW : HIGH);
 }
 
 /*
@@ -299,16 +348,22 @@ void printHelp() {
   Serial.println("  E or e          - Enable motors");
   Serial.println("  D or d          - Disable motors");
   Serial.println("  A<steps>        - Move ALT motor (+/- steps)");
-  Serial.println("  Z<steps>        - Move AZ motor (+/- steps)");
+  Serial.println("  Z<steps>        - Move AZ (+ = East, - = West)");
   Serial.println("  P or p          - Get current positions");
   Serial.println("  R or r          - Reset position counters to 0");
   Serial.println("  V<speed>        - Set speed (steps/sec)");
+  Serial.println("  B or b          - Balance AZ screws (guide)");
   Serial.println("  ?               - Print status");
+  Serial.println("===================================");
+  Serial.println("AZIMUTH DIFFERENTIAL CONTROL:");
+  Serial.println("  Z100   - Move EAST (west tightens, east loosens)");
+  Serial.println("  Z-100  - Move WEST (west loosens, east tightens)");
   Serial.println("===================================");
   Serial.println("EXAMPLES:");
   Serial.println("  A1600          - Move ALT 1600 steps forward");
   Serial.println("  A-800          - Move ALT 800 steps backward");
-  Serial.println("  Z3200          - Move AZ 3200 steps forward");
+  Serial.println("  Z200           - Move AZ 200 steps EAST");
+  Serial.println("  Z-200          - Move AZ 200 steps WEST");
   Serial.println("  V1000          - Set speed to 1000 steps/sec");
   Serial.println("===================================");
 }
@@ -321,7 +376,8 @@ void printStatus() {
   Serial.print("  ALT Position: ");
   Serial.println(altPosition);
   Serial.print("  AZ Position: ");
-  Serial.println(azPosition);
+  Serial.print(azPosition);
+  Serial.println(" (+ = East, - = West)");
   Serial.print("  Speed: ");
   Serial.print(altSpeed);
   Serial.println(" steps/sec");
@@ -329,4 +385,5 @@ void printStatus() {
   Serial.println(MICROSTEPS);
   Serial.print("  Steps/Rev: ");
   Serial.println(STEPS_PER_REV * MICROSTEPS);
+  Serial.println("  AZ Mode: DIFFERENTIAL (synchronized opposing screws)");
 }

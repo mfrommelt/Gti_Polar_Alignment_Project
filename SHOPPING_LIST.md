@@ -1,426 +1,499 @@
-# Shopping List - Star Adventurer GTi Polar Alignment Controller
+# Updated Shopping List - Differential AZ Control
 
-Complete parts list with specific product recommendations and approximate costs.
+## Important Update
 
-## Essential Electronics (~$75)
+Based on the clarification that AZ uses **opposing screws** (push-pull differential), you need **3 motors** instead of 2:
 
-### Microcontroller
-
-**Arduino Nano** (Recommended)
-- **Specs**: ATmega328P, 5V, USB Mini/Micro
-- **Quantity**: 1
-- **Cost**: $5-10
-- **Where to Buy**:
-  - Amazon: "Arduino Nano V3.0"
-  - AliExpress: "NANO V3.0 ATmega328P"
-  - Local electronics store
-- **Alternative**: Arduino Uno ($15-20) - works but larger
-
-**Why Arduino Nano?**
-- Compact size
-- USB connectivity
-- 5V logic compatible with TMC2208
-- Well-documented, huge community support
-- Easy to integrate into final enclosure
+- 1 motor for ALT (altitude knob)
+- 2 motors for AZ (west screw + east screw)
 
 ---
 
-### Stepper Motor Drivers
+## Updated Essential Electronics (~$100)
 
-**TMC2208 V3.0 Stepper Driver**
-- **Specs**: 
-  - Silent operation (StealthChop)
-  - 256 microstep resolution
-  - 2A peak current
-  - 12-24V input
-  - UART configuration (optional)
-- **Quantity**: 2
-- **Cost**: $5-8 each
-- **Where to Buy**:
-  - Amazon: "BIGTREETECH TMC2208 V3.0"
-  - AliExpress: "TMC2208 V3.0 Stepper Driver"
-  - BigTreeTech official store
-- **Alternative**: 
-  - A4988 ($3-5 each) - louder but cheaper
-  - DRV8825 ($5-7 each) - higher current capability
+### Same Components as Before
 
-**Why TMC2208?**
-- Nearly silent operation (important for astronomy)
-- Excellent microstepping accuracy
-- Built-in protection (thermal, over-current)
-- Widely available
-- Well-documented
+**Arduino Nano** - 1x - $8
+**12V Power Supply** - Upgrade to 3A - $12 (was $10)
+**USB Cable** - 1x - $4
+**Jumper Wires** - 1 pack - $6
+**Breadboard** (optional) - $5
 
-**Important**: Get V3.0 or newer for best reliability
+### UPDATED Components
 
----
+**TMC2208 V3.0 Stepper Drivers**
+- **Quantity**: **3** (was 2)
+- **Cost**: $24 total (3 × $8)
+- **Where**: Amazon "BIGTREETECH TMC2208 V3.0 3-pack"
+- **NOTE**: Often cheaper to buy 5-pack ($30) and have spares
 
-### Stepper Motors
+**NEMA 11 Stepper Motors (0.33-0.67A)** ← UPDATED for compact size!
+- **Quantity**: **3** (was 2)
+- **Cost**: $30 total (3 × $10)
+- **Where**: Amazon "NEMA 11 stepper motor 28HS32"
+- **Why NEMA 11**: Star Adventurer GTi is compact - NEMA 17 (42mm) too bulky!
+- **Size**: 28mm × 28mm (67% smaller than NEMA 17)
+- **Note**: Same 5mm shaft, adequate torque with gear reductions
 
-**NEMA 17 Stepper Motor (17HS4401)**
-- **Specs**:
-  - Step angle: 1.8° (200 steps/rev)
-  - Voltage: 12V
-  - Current: 0.4A - 1.7A (0.4A recommended for less heat)
-  - Holding torque: 40-50 N·cm
-  - Shaft: 5mm diameter
-  - 4-wire bipolar
-- **Quantity**: 2
-- **Cost**: $10-15 each
-- **Where to Buy**:
-  - Amazon: "NEMA 17 Stepper Motor 12V 0.4A"
-  - StepperOnline: Part #17HS4401
-  - AliExpress: "42 Stepper Motor 17HS4401"
-- **Recommended models**:
-  - 17HS4401: 0.4A, less heat (best for astronomy)
-  - 17HS8401: 1.7A, more torque (if high load)
-
-**Motor Selection Guide**:
-- **0.4A motors**: Cooler, quieter, sufficient for polar align
-- **1.7A motors**: More torque, but more heat
-- **Avoid pancake motors**: Less torque
+**Heatsinks**
+- **Quantity**: 3 (for 3 drivers)
+- **Usually included with drivers**
 
 ---
 
-### Power Supply
-
-**12V 2A DC Power Adapter**
-- **Specs**:
-  - Output: 12V DC, 2A minimum (3A preferred)
-  - Connector: 2.1mm barrel jack OR bare wires
-  - Input: 100-240V AC (universal)
-  - Safety: UL/CE certified
-- **Quantity**: 1
-- **Cost**: $8-12
-- **Where to Buy**:
-  - Amazon: "12V 3A Power Supply"
-  - Local electronics store
-  - Reuse old laptop/router power supply (check voltage!)
-
-**Power Requirements**:
-```
-Arduino Nano:     ~100mA (0.5W)
-2x NEMA 17 (0.4A): ~800mA total (9.6W)
-TMC2208 drivers:   ~50mA each (0.6W)
-Total:            ~1A continuous (12W)
-Peak:             ~2A (24W)
-```
-
-**Recommendation**: Get 3A supply for headroom
-
-**Alternative Power**:
-- USB power bank (5V) + DC-DC boost converter (5V→12V)
-- Portable battery pack (12V, for field use)
-- Car cigarette lighter adapter (12V)
-
----
-
-### Wiring & Connectors
-
-**Jumper Wires - Dupont Connectors**
-- **Specs**: 
-  - Male-to-Female
-  - 20cm length
-  - 22 AWG
-- **Quantity**: 20+ wires
-- **Cost**: $5-8
-- **Where to Buy**:
-  - Amazon: "Dupont Jumper Wire Kit"
-  - AliExpress: "120pcs Dupont Wire Set"
-
-**USB Cable**
-- **Type**: USB-A to Mini-USB or Micro-USB
-- **Length**: 1-2 meters
-- **Quantity**: 1
-- **Cost**: $3-5
-- **Note**: Match to your Arduino Nano connector type
-
-**Optional - Barrel Jack Connector**
-- For clean 12V power connection
-- **Cost**: $2-3
-- **Where**: Amazon "DC Barrel Jack Connector"
-
-**Optional - Screw Terminals**
-- For permanent motor connections
-- **Cost**: $5
-- **Where**: Amazon "Screw Terminal Block"
-
----
-
-### Accessories
-
-**Heatsinks for TMC2208**
-- **Size**: 8.8 x 8.8 x 5mm aluminum
-- **Quantity**: 2 (or 4 if you want extras)
-- **Cost**: $2-3
-- **Where to Buy**: Often included with TMC2208 drivers
-- **Note**: CRITICAL - drivers will overheat without these!
-
-**Breadboard (Optional for Prototyping)**
-- **Size**: 400 or 830 point
-- **Quantity**: 1
-- **Cost**: $3-5
-- **Where to Buy**: Amazon "Solderless Breadboard"
-- **Note**: Makes prototyping cleaner, not needed for final build
-
-**Multimeter (If you don't have one)**
-- **Essential for**:
-  - Setting current limit (Vref)
-  - Checking voltages
-  - Identifying motor coils
-  - Troubleshooting
-- **Cost**: $15-30
-- **Recommendation**: Any basic digital multimeter works
-
----
-
-## Mechanical Components (~$30)
-
-### Belt Drive System
-
-**GT2 Timing Belt**
-- **Specs**: 
-  - Type: GT2 (2mm pitch)
-  - Width: 6mm
-  - Length: 2 meters (buy extra for mistakes)
-- **Quantity**: 2m minimum
-- **Cost**: $8-12
-- **Where to Buy**:
-  - Amazon: "GT2 Timing Belt 6mm"
-  - AliExpress: "GT2 Belt 2GT 6mm"
-- **Note**: Get rubber belt, not fiberglass core (more forgiving)
-
-**GT2 Pulleys**
-- **Specs**:
-  - Type: GT2, 2mm pitch
-  - Teeth: 20T (tooth count)
-  - Bore: 5mm (for motor shaft)
-  - Width: 6mm
-- **Quantity**: 4 (2 for motors, 2 for knob shafts)
-- **Cost**: $8-12 for set of 4
-- **Where to Buy**:
-  - Amazon: "GT2 Pulley 20 Teeth 5mm Bore"
-  - AliExpress: "GT2 20T Pulley Set"
-
-**Pulley Options**:
-- **20 teeth**: Standard, works for most applications
-- **16 teeth**: Smaller, tighter bends
-- **30+ teeth**: Larger, better for high-torque
-
----
-
-### Couplers & Shafts
-
-**Flexible Shaft Couplers**
-- **Specs**:
-  - Type: Aluminum flexible jaw coupling
-  - Size: 5mm to 5mm (or 5mm to your knob shaft size)
-  - Length: 25mm
-- **Quantity**: 2-4
-- **Cost**: $6-10
-- **Where to Buy**:
-  - Amazon: "5mm to 5mm Flexible Coupling"
-  - AliExpress: "Flexible Shaft Coupler"
-
-**Alternative**: Rigid couplers (cheaper but require perfect alignment)
-
----
-
-### Mounting Hardware
-
-**Motor Brackets** (Option 1: 3D Printed)
-- **Material**: PLA or PETG
-- **Cost**: $5-10 (material + printing service)
-- **Where**: 
-  - Print yourself if you have 3D printer
-  - Local makerspace
-  - Online printing service (Craftcloud, Shapeways)
-- **Note**: STL files to be added to project
-
-**Motor Brackets** (Option 2: Aluminum)
-- **Type**: NEMA 17 mounting bracket
-- **Cost**: $8-12 each
-- **Where to Buy**:
-  - Amazon: "NEMA 17 Stepper Motor Bracket"
-  - McMaster-Carr: Part #6061 Aluminum bracket
-
-**Screws & Hardware**
-- **M3 screws**: 20-30 pieces, various lengths (6mm, 10mm, 20mm)
-- **M4 screws**: 10 pieces (for motor mounting)
-- **Cost**: $5-8
-- **Where**: Amazon "M3 M4 Screw Assortment Kit"
-
----
-
-## Optional Upgrades (~$50)
-
-### Enclosure
-
-**Project Box**
-- **Size**: 150mm x 100mm x 50mm minimum
-- **Material**: ABS plastic or aluminum
-- **Cost**: $10-15
-- **Where**: Amazon "Electronic Project Enclosure"
-- **Purpose**: Protect electronics, professional appearance
-
-**Alternative**: 3D print custom enclosure
-
----
-
-### Improved Power
-
-**Portable Power Bank - 12V Output**
-- **Specs**: 
-  - 12V DC output
-  - 10,000+ mAh capacity
-  - Multiple outputs
-- **Cost**: $30-40
-- **Where**: Amazon "12V Portable Battery Pack"
-- **Benefit**: Field use without AC power
-
-**DC-DC Converter** (if using USB power bank)
-- **Input**: 5V USB
-- **Output**: 12V, 2A
-- **Cost**: $8-12
-- **Where**: Amazon "USB to 12V DC Converter"
-
----
-
-### Field Deployment
-
-**Weatherproof Case**
-- **Type**: IP65 rated plastic case
-- **Size**: Fits all electronics
-- **Cost**: $15-25
-- **Purpose**: Protection from dew, moisture
-- **Where**: Amazon "Waterproof Electronics Case"
-
-**Cable Management**
-- **Spiral wrap**: $5
-- **Cable ties**: $3
-- **Velcro straps**: $5
-
----
-
-## Total Cost Breakdown
+## Updated Total Cost
 
 ### Minimum Working System
 ```
-Arduino Nano:            $8
-2x TMC2208:              $16 (2 × $8)
-2x NEMA 17:              $24 (2 × $12)
-12V Power Supply:        $10
-USB Cable:               $4
-Jumper Wires:            $6
-Heatsinks:               $2 (often included)
-──────────────────────
-SUBTOTAL:                $70
+Arduino Nano:           $8
+3x TMC2208:             $24
+3x NEMA 11:             $30  ← UPDATED (was $36)
+12V 3A Power Supply:    $12
+USB Cable:              $4
+Jumper Wires:           $6
+Heatsinks:              $2 (if not included)
+───────────────────────────
+SUBTOTAL:               $86  ← SAVES $6!
 ```
 
 ### Complete Mechanical System
 ```
-Above electronics:       $70
-GT2 Belt:                $10
-GT2 Pulleys:             $10
-Couplers:                $8
-Hardware (screws):       $7
-──────────────────────
-TOTAL:                   $105
+Above electronics:      $86  ← UPDATED
+3x Flexible Couplers:   $12 (3 × $4)
+GT2 Belt (for ALT):     $10
+GT2 Pulleys (for ALT):  $10
+Hardware (screws):      $8
+───────────────────────────
+TOTAL:                  $126  ← SAVES $6!
 ```
 
-### Professional System
+**Benefits of NEMA 11**: Smaller (28mm vs 42mm), lighter, won't block telescope, same 5mm shaft!
+
+---
+
+## Smart Shopping Strategy
+
+### Option 1: Buy Complete 3-Motor Kit
+
+Look for combo kits on Amazon/AliExpress:
+- "3D Printer Stepper Motor Kit" 
+- Usually includes 5 motors + 5 drivers
+- Cost: $60-80 total
+- Gives you spares
+- Often includes heatsinks and wiring
+
+**Search Terms**:
+- "5x NEMA 17 + 5x TMC2208 kit"
+- "3D printer stepper driver set"
+- "BIGTREETECH TMC2208 5-pack"
+
+### Option 2: Buy Exactly What You Need
+
+**3-Motor Specific Kit** (if available):
+- Some sellers offer custom quantities
+- Contact seller for quote
+- May get slight discount
+
+### Option 3: Individual Components
+
+**Buy from same vendor to save shipping:**
+
+Amazon cart example:
 ```
-Above complete:          $105
-Enclosure:               $12
-Portable power:          $35
-Weatherproofing:         $20
-──────────────────────
-TOTAL:                   $172
+1. Arduino Nano CH340 USB              $8
+2. NEMA 17 Motor 0.4A (qty 3)          $36
+3. TMC2208 V3.0 Driver (qty 3)         $24
+4. 12V 3A Power Adapter                $12
+5. Dupont Jumper Wire Set              $6
+6. 5mm Flexible Couplers (qty 3)       $12
+7. GT2 Belt + Pulley Kit               $15
+────────────────────────────────────────────
+TOTAL:                                 $113
 ```
 
 ---
 
-## Where to Buy - Recommended Vendors
+## Power Supply Upgrade
 
-### United States
-- **Amazon**: Fast shipping, easy returns
-- **Adafruit**: High quality, US-based support
-- **StepperOnline**: Specialized motors
-- **McMaster-Carr**: Industrial-grade hardware
+### Why 3A Instead of 2A?
 
-### International
-- **AliExpress**: Cheapest, slower shipping (2-4 weeks)
-- **Banggood**: Good middle ground
-- **Mouser**: Electronic components
-- **DigiKey**: Electronic components, technical support
+**Power Calculation** (with NEMA 11):
+```
+3 motors @ 0.67A each = 2.0A continuous max
+3 motors @ 0.33A each = 1.0A continuous min
+Typical operation:      ~1.3A continuous
+Arduino: ~0.1A
+Total: ~1.4A continuous
 
-### Local
-- **Micro Center**: In-store pickup (if near you)
-- **Local electronics stores**: Immediate availability
-- **Makerspace**: May have components to borrow
+Peak current (all motors): ~2.2A
+Safety margin (30%): 2.2A × 1.3 = 2.9A
+
+Recommended: 3A supply
+```
+
+**Note**: NEMA 11 uses less power than NEMA 17 - 3A still provides good margin.
+
+### Power Supply Options
+
+**12V 3A AC/DC Adapter**
+- **Cost**: $10-15
+- **Where**: Amazon "12V 3A Power Supply 2.1mm"
+- **Specs**: 
+  - Output: 12V DC, 3A
+  - Connector: 2.1mm barrel jack
+  - Input: 100-240V AC
+  - Safety: UL/CE listed
+
+**Alternative - USB PD Power Bank**
+- **Type**: USB-C PD with 12V output
+- **Cost**: $35-50
+- **Benefit**: Portable field operation
+- **Example**: "12V USB-C PD Trigger Cable"
 
 ---
 
-## Money-Saving Tips
+## Updated Wiring Requirements
 
-1. **Buy kits**: "Arduino + Stepper Kit" often cheaper
-2. **Shop sales**: Black Friday, Prime Day
-3. **Buy bulk**: Share with astronomy club
-4. **Reuse**: Old 3D printer parts (motors, drivers, belts)
-5. **Print locally**: Cheaper than online printing services
+### Additional Wire Needed
+
+**For 3rd Motor**:
+- 6 more jumper wires (step, dir, enable, 2x motor coils, gnd)
+- 1 more motor cable (usually included with motor)
+- Total: Same wire pack works, just need to organize better
+
+### Wire Organization Tips
+
+Use different colors for different functions:
+- **Red**: Power (12V, VIN)
+- **Black**: Ground (GND)
+- **Yellow**: STEP signals
+- **Green**: DIR signals
+- **Blue**: ENABLE signals
+- **White**: Motor connections
+
+---
+
+## Mechanical Components Update
+
+### Couplers for AZ Screws
+
+**You Need**:
+- 2x flexible couplers for AZ screws (west + east)
+- 1x coupler OR pulley for ALT
+- Total: 3 couplers minimum
+
+**Sizing**:
+- Motor side: 5mm (NEMA 11 standard shaft - same as NEMA 17!)
+- Screw side: **MEASURE YOUR SCREWS!**
+  - Common sizes: 3mm, 4mm, 5mm, 6mm
+  - May need to drill/tap screw heads
+
+**Cost**: $4 each × 3 = $12
+
+### Mounting Brackets Update
+
+**For 3 Motors**:
+- Need mounting space for 3 motors instead of 2
+- West motor + East motor need to be symmetric
+- ALT motor mounts as before
+
+**Options**:
+1. **3D printed custom bracket** ($10-15 in filament) - **Easier with NEMA 11!**
+2. **Aluminum L-brackets** ($12-18) - **Smaller for NEMA 11**
+3. **Commercial NEMA 11 brackets** ($6 each × 3 = $18) - **Compact!**
+
+**Note**: NEMA 11 brackets much smaller than NEMA 17 - easier to fit on mount!
+
+---
+
+## Bundle Deals to Look For
+
+### Amazon/AliExpress Deals
+
+**3D Printer Kits** typically have NEMA 17 (too large).  
+For NEMA 11, buy individually:
+
+**NEMA 11 + Driver Bundle** (if available):
+- 3× NEMA 11 motors  
+- 3× TMC2208 drivers
+- Often sold for compact CNC or small 3D printers
+- Cost: $50-70 total
+- **Search**: "NEMA 11 stepper kit" or "28mm stepper CNC"
+
+**Or Buy Separately** (more common):
+- NEMA 11 motors individually: $10 each × 3 = $30
+- TMC2208 5-pack: $30 (have 2 spares)
+- Total: $60 for motors + drivers
+
+---
+
+## Cost Comparison: 3-Motor vs Platform
+
+### 3-Motor Differential (Updated with NEMA 11)
+```
+Electronics:             $86  ← UPDATED
+Mechanical:              $40
+────────────────────────────
+TOTAL:                   $126 ← SAVES $6!
+```
+
+**Bonus**: NEMA 11 is smaller, lighter, won't interfere with telescope!
+
+### 2-Motor Platform
+```
+Electronics:             $70
+Platform bearing:        $25
+Worm gear:               $30
+Brackets/hardware:       $25
+────────────────────────────
+TOTAL:                   $150
+```
+
+**Difference**: Only $18 more for platform approach
+
+---
+
+## Recommended Purchase Plan
+
+### Phase 1: Electronics Testing ($86)
+
+Buy first to test before mechanical:
+1. Arduino Nano
+2. 3× TMC2208 drivers
+3. 3× NEMA 11 motors ← UPDATED (28mm × 28mm compact!)
+4. 12V 3A power supply
+5. Wiring/breadboard
+
+**Test everything works before buying mechanical parts**
+
+**Why NEMA 11**: Compact size crucial for Star Adventurer GTi - NEMA 17 too bulky!
+
+### Phase 2: Mechanical Integration ($40)
+
+After electronics proven:
+1. Measure your exact screw dimensions
+2. Order correct size couplers
+3. Order ALT belt/pulley system
+4. Design/order mounting brackets
+
+---
+
+## Where to Buy - Updated Recommendations
+
+### Best Value: AliExpress
+
+**Pros**:
+- Cheapest pricing (often 50% off Amazon)
+- Many bundle options
+- 3D printer kits perfect for this
+
+**Cons**:
+- Slow shipping (2-6 weeks)
+- Less reliable customer service
+- Check seller ratings carefully
+
+**Recommended Search**:
+- "3D printer stepper kit 5 motor TMC2208"
+- "CNC stepper motor kit 3 axis"
+- Filter: 4+ stars, 100+ orders
+
+### Fastest: Amazon Prime
+
+**Pros**:
+- 2-day shipping available
+- Easy returns
+- Reliable brands (BIGTREETECH)
+
+**Cons**:
+- Higher cost
+- Fewer bundle options
+
+**Recommended Products**:
+1. BIGTREETECH TMC2208 V3.0 (5-pack) - $30-35
+2. NEMA 11 28HS32 stepper motor - $10-12 each ← UPDATED for compact size!
+3. ALITOVE 12V 3A Power Supply - $11
+
+**Search terms**: 
+- "NEMA 11 stepper motor 28HS32"
+- "28mm stepper motor 0.67A 5mm shaft"
+
+### Best Quality: StepperOnline
+
+**Pros**:
+- High-quality motors
+- Good documentation
+- Excellent customer service
+
+**Cons**:
+- Higher price
+- Shipping costs
+
+**Use for**: Final production build after prototyping
 
 ---
 
 ## Sample Amazon Shopping Cart
 
-**Complete System - Ready to Order**
+**Copy-paste these search terms**:
 
-1. Arduino Nano V3.0 (with cable) - $8
-2. BIGTREETECH TMC2208 V3.0 (2-pack) - $16
-3. NEMA 17 Stepper Motor 0.4A (2-pack) - $24
-4. 12V 3A Power Supply - $11
-5. Dupont Jumper Wire Kit - $7
-6. GT2 Belt + Pulley Kit - $15
-7. M3/M4 Screw Assortment - $8
-8. 5mm Shaft Couplers (2pcs) - $7
+```
+1. "Arduino Nano V3 ATmega328P CH340"
+   Price: ~$8
 
-**Total**: ~$96 + tax/shipping
+2. "NEMA 11 Stepper Motor 28HS32 0.67A 5mm"
+   Quantity: 3
+   Price: ~$10 each = $30  ← UPDATED for compact mount!
 
-**Search terms for Amazon**:
-- "Arduino Nano ATmega328P CH340"
-- "TMC2208 V3.0 stepper driver"
-- "NEMA 17 stepper motor 0.4A 40Ncm"
-- "12V 3A power adapter 2.1mm barrel"
-- "GT2 timing belt pulley kit"
+3. "BIGTREETECH TMC2208 V3.0 Stepper Motor Driver"
+   Quantity: 3 (or buy 5-pack for $30)
+   Price: ~$24
+
+4. "12V 3A Power Supply Adapter 2.1mm"
+   Price: ~$12
+
+5. "Dupont Jumper Wire Kit 120pcs"
+   Price: ~$6
+
+6. "5mm Flexible Shaft Coupling Coupler"
+   Quantity: 3
+   Price: ~$12
+
+7. "GT2 Timing Belt Kit 6mm with Pulleys"
+   Price: ~$15
+```
+
+**Cart Total**: ~$107 + tax/shipping  ← SAVES $6 with NEMA 11!
 
 ---
 
-## Verification Checklist
+## Money-Saving Alternatives
+
+### Option A: Reuse 3D Printer Parts
+
+If you have an old 3D printer:
+- Salvage 3 stepper motors (typically NEMA 17 - but check size!)
+- **Warning**: NEMA 17 may be too bulky for Star Adventurer GTi
+- **Better**: Look for NEMA 11 or compact NEMA 14
+- Salvage TMC drivers or A4988 drivers
+- Reuse power supply if 12V
+- **Cost**: $20 for Arduino + wiring
+
+### Option B: Arduino Nano Clone
+
+- Official Arduino Nano: $25
+- CH340 clone: $3-5
+- **Savings**: $20
+- **Note**: Functionality identical for this project
+
+### Option C: A4988 Drivers Instead of TMC2208
+
+- A4988: $3 each
+- TMC2208: $8 each
+- **Savings**: $15 (for 3 drivers)
+- **Tradeoff**: A4988 is louder but works fine
+
+**If using A4988**:
+- Need to adjust current limit differently
+- Noisier operation (not ideal for astronomy)
+- Same functionality otherwise
+
+---
+
+## Final Shopping Checklist
 
 Before ordering, verify:
 
-- [ ] Arduino Nano has USB cable included
-- [ ] TMC2208 version 3.0 or newer
-- [ ] NEMA 17 motors are 5mm shaft diameter
-- [ ] Power supply is 12V, minimum 2A
-- [ ] GT2 belt width matches pulley width (6mm)
-- [ ] Pulley bore matches motor shaft (5mm)
-- [ ] Heatsinks included with TMC2208 (or order separately)
+- [ ] **3** stepper motors (not 2!)
+- [ ] **NEMA 11** (28mm) recommended for compact mount ← UPDATED!
+- [ ] Or NEMA 14/17 if remote-mounting motors
+- [ ] **3** stepper drivers (not 2!)
+- [ ] **12V 3A** power supply (not 2A)
+- [ ] Arduino has USB cable included
+- [ ] TMC2208 version 3.0 or later
+- [ ] Motors are 5mm shaft diameter
+- [ ] Measured AZ screw diameters for couplers
+- [ ] Heatsinks included with drivers
+- [ ] Jumper wires are male-to-female
 
 ---
 
-## Next Steps After Purchasing
+## When You Can Skip the 3rd Motor
 
-1. **Read QUICK_START.md** for assembly instructions
-2. **Test electronics** before mechanical integration
-3. **Measure your mount** for custom bracket design
-4. **Join community** to share your build!
+**Only use 2 motors if you choose the Platform Rotation approach**:
+- 1 motor for ALT
+- 1 motor for AZ platform rotation
+- See DIFFERENTIAL_AZ_CONTROL.md for details
+
+For the differential screw approach (easier mechanically), you **must have 3 motors**.
 
 ---
 
-**Estimated Delivery Time**: 
-- Amazon Prime: 2 days - 1 week
-- Standard shipping: 1-2 weeks
-- International: 2-6 weeks
+## Bulk Discount Opportunities
 
-**Ready to build?** Order your parts and let's automate that polar alignment! 🔭✨
+If you know other astronomers interested in automation:
+
+**Group Buy Benefits**:
+- 10-pack motors: ~$8 each (vs $12)
+- 10-pack TMC2208: ~$6 each (vs $8)
+- Split shipping costs
+- Everyone saves 20-30%
+
+**Suggested**: Post in local astronomy club!
+
+---
+
+## Updated Timeline
+
+### With 3 Motors
+
+| Source | Delivery Time |
+|--------|---------------|
+| Amazon Prime | 2 days - 1 week |
+| Amazon Standard | 1-2 weeks |
+| AliExpress | 2-6 weeks |
+
+**Recommendation**: Order everything at once to avoid multiple shipping costs.
+
+---
+
+## What If I Already Ordered 2 Motors?
+
+**No problem!** Two options:
+
+1. **Order 1 more motor + driver**
+   - Add to your kit
+   - Total cost: +$20
+   - Minimal delay
+
+2. **Switch to Platform Rotation approach**
+   - Use 2 motors you have
+   - More mechanical work
+   - See MECHANICAL_GUIDE.md Option B
+
+---
+
+## Ready to Order?
+
+**Fastest path (NEMA 11 - Compact!)**: 
+1. Search Amazon for "NEMA 11 stepper motor 28HS32"
+2. Buy 3 motors individually ($30 total)
+3. Add BIGTREETECH TMC2208 5-pack ($30)
+4. Add Arduino Nano ($8)
+5. Add 12V 3A power supply ($12)
+6. Add wire kit ($6)
+7. **Total**: ~$86, delivered in 2 days
+8. **Bonus**: Won't interfere with telescope!
+
+**Budget path**:
+1. AliExpress "NEMA 11 stepper motor 28mm"
+2. Buy 3 motors + TMC2208 drivers separately
+3. Total: ~$45-55
+4. Wait 3-4 weeks
+5. Save $30-40
+
+**Alternative (if space permits)**:
+- NEMA 17 remote-mounted away from telescope
+- Longer belts required
+- See COMPACT_MOTOR_SOLUTIONS.md
+
+Your choice! 🛒
